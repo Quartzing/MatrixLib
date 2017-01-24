@@ -1,0 +1,1299 @@
+
+#ifndef MATRIX_H_INCLUDED
+#define MATRIX_H_INCLUDED
+#include <iostream>
+#include <cmath>
+#include <ostream>
+#include <fstream>
+#include <string>
+#include <algorithm>
+#include <sstream>
+#include <stdlib.h>
+#include <time.h>
+#include <omp.h>
+#define SHOW(name) (name).show(#name,15)
+#define DEBUG(name) std::cout<<#name<<": "<<endl<<(name)<<endl<<endl;
+
+
+using namespace std;
+using Eigen::MatrixXd;
+
+
+class Matrix
+{
+private:
+    int dx,dy;
+    MatrixXd *p;
+
+    void allocArrays()
+    {
+        p=new MatrixXd(dx,dy);
+        p->fill(0);
+
+    }
+
+public:
+    Matrix(int sizeX, int sizeY);
+    Matrix(int sizeX);
+    Matrix();
+    ~Matrix();
+    Matrix(const Matrix& m);
+
+
+    int sizeX () const    {return dx;}
+    int sizeY () const    {return dy;}
+    double value(int i, int j) const {return (*p)(i,j);}
+    double value(int i) const {return (*p)(i,0);}
+    MatrixXd& P() const {return *p;}
+
+    double& operator    ()  (int X,int Y);
+    double& operator    ()  (int X);
+    double& operator    ()  (Matrix&, double c);
+    double& operator    ()  (Matrix&, int c);
+    Matrix  operator    +   (const Matrix& m) const;
+    Matrix  operator    +   (const Matrix&& m) const;
+    Matrix  operator    -   (const Matrix& m) const;
+    Matrix  operator    -   (const Matrix&& m) const;
+    Matrix& operator    =   (const Matrix& m);
+    Matrix& operator    =   (const Matrix&& m);
+//    Matrix& operator    =   (const SpMatrixXd& m);
+    Matrix& operator    =   (const MatrixXd& m);
+    Matrix& operator    =   (const double m[]);
+    Matrix& operator    +=  (const Matrix& m);
+    Matrix& operator    -=  (const Matrix& m);
+    Matrix& operator    *=  (const Matrix& m);
+    Matrix& operator    /=  (const Matrix& m);
+    Matrix& operator    +=  (double m);
+    Matrix& operator    -=  (double m);
+    Matrix& operator    *=  (double m);
+    Matrix& operator    /=  (double m);
+
+    Matrix& operator    +=  (const Matrix&& m);
+    Matrix& operator    -=  (const Matrix&& m);
+    Matrix& operator    *=  (const Matrix&& m);
+    Matrix& operator    /=  (const Matrix&& m);
+
+
+    friend Matrix operator | (const Matrix& m1, const Matrix& m2);
+    friend Matrix operator * (const Matrix& m1, const Matrix& m2);
+    friend Matrix operator * (double c,const Matrix& m2);
+    friend Matrix operator * (const Matrix& m1,double c);
+    friend Matrix operator * (int c,const Matrix& m2);
+    friend Matrix operator * (const Matrix& m1,int c);
+
+    friend Matrix operator + (double c,const Matrix& m);
+    friend Matrix operator + (const Matrix& m, double c);
+    friend Matrix operator + (int c,const Matrix& m);
+    friend Matrix operator + (const Matrix& m, int c);
+    friend Matrix operator + (const Matrix& m);
+
+    friend Matrix operator - (const Matrix& m);
+    friend Matrix operator - (const Matrix& m, double c);
+    friend Matrix operator - (double c,const Matrix& m);
+    friend Matrix operator - (int c,const Matrix& m);
+    friend Matrix operator - (const Matrix& m, int c);
+
+
+    friend Matrix operator / (const Matrix& m1, const Matrix& m2);
+    friend Matrix operator / (const Matrix& m1, double c);
+    friend Matrix operator / (double c, const Matrix& m1);
+    friend Matrix operator / (const Matrix& m1, int c);
+    friend Matrix operator / (int c, const Matrix& m1);
+    friend Matrix operator ^ (const Matrix& m1, double c);
+    friend Matrix operator ^ (const Matrix& m1, int c);
+
+    /// &&
+
+    friend Matrix operator | (const Matrix&& m1, const Matrix&& m2);
+    friend Matrix operator | (const Matrix&& m1, const Matrix& m2);
+    friend Matrix operator | (const Matrix& m1, const Matrix&& m2);
+    friend Matrix operator * (const Matrix&& m1, const Matrix&& m2);
+    friend Matrix operator * (const Matrix&& m1, const Matrix& m2);
+    friend Matrix operator * (const Matrix& m1, const Matrix&& m2);
+    friend Matrix operator * (double c,const Matrix&& m2);
+    friend Matrix operator * (const Matrix&& m1,double c);
+    friend Matrix operator * (int c,const Matrix&& m2);
+    friend Matrix operator * (const Matrix&& m1,int c);
+
+    friend Matrix operator + (double c,const Matrix&& m);
+    friend Matrix operator + (const Matrix&& m, double c);
+    friend Matrix operator + (int c,const Matrix&& m);
+    friend Matrix operator + (const Matrix&& m, int c);
+    friend Matrix operator + (const Matrix&& m);
+
+    friend Matrix operator - (const Matrix&& m);
+    friend Matrix operator - (const Matrix&& m, double c);
+    friend Matrix operator - (double c,const Matrix&& m);
+    friend Matrix operator - (int c,const Matrix&& m);
+    friend Matrix operator - (const Matrix&& m, int c);
+
+
+    friend Matrix operator / (const Matrix&& m1, const Matrix&& m2);
+    friend Matrix operator / (const Matrix& m1, const Matrix&& m2);
+    friend Matrix operator / (const Matrix&& m1, const Matrix& m2);
+    friend Matrix operator / (const Matrix&& m1, double c);
+    friend Matrix operator / (double c, const Matrix&& m1);
+    friend Matrix operator / (const Matrix&& m1, int c);
+    friend Matrix operator / (int c, const Matrix&& m1);
+    friend Matrix operator ^ (const Matrix&& m1, double c);
+    friend Matrix operator ^ (const Matrix&& m1, int c);
+    ///
+
+    friend Matrix operator > (const Matrix& m1, const Matrix& m2);
+    friend Matrix operator > (const Matrix& m1, double c);
+    friend Matrix operator > (double c, const Matrix& m2);
+
+    friend Matrix operator >= (const Matrix& m1, const Matrix& m2);
+    friend Matrix operator >= (const Matrix& m1, double c);
+    friend Matrix operator >= (double c, const Matrix& m2);
+
+    friend Matrix operator < (const Matrix& m1, const Matrix& m2);
+    friend Matrix operator < (const Matrix& m1, double c);
+    friend Matrix operator < (double c, const Matrix& m2);
+
+    friend Matrix operator <= (const Matrix& m1, const Matrix& m2);
+    friend Matrix operator <= (const Matrix& m1, double c);
+    friend Matrix operator <= (double c, const Matrix& m2);
+
+    friend Matrix operator == (const Matrix& m1, const Matrix& m2);
+    friend Matrix operator == (const Matrix& m1, double c);
+    friend Matrix operator == (double c, const Matrix& m2);
+
+    friend Matrix operator != (const Matrix& m1, const Matrix& m2);
+    friend Matrix operator != (const Matrix& m1, double c);
+    friend Matrix operator != (double c, const Matrix& m2);
+
+    friend ostream &operator << (ostream &out, const Matrix &m);
+
+
+    Matrix diag() const;
+    void show(int) const;
+    void show(string,int) const;
+    Matrix trans() const;
+    Matrix det() const;
+    double det2() const;
+    Matrix index() const;
+    double sum() const;
+    double max() const;
+    double min() const;
+    void remove_nan(double) ;
+    void remove_nan(int) ;
+    void change(const Matrix &, double, double);
+    void change(const Matrix &, double, int);
+    void change(const Matrix &, int, double);
+    void change(const Matrix &, int, int);
+    void change(const Matrix&,double);
+    Matrix row(int i);
+    Matrix col(int j);
+    Matrix range(int,int,int,int);
+    void swap_row(int,int);
+    void swap_col(int,int);
+
+
+    static Matrix ones(int i, int j);
+    static Matrix zeros(int i, int j);
+    static Matrix random(int i, int j);
+    static Matrix readcsv   (string filename) ;
+    static void   writecsv  (string filename, const  Matrix &m) ;
+    static Matrix combine(Matrix* M[],int);
+
+
+    static Matrix SOLVE(Matrix &A,Matrix &b)
+    {
+        Matrix X(b.dx);
+        *X.p=(*A.p).lu().solve((*b.p));
+        return X;
+    }
+
+
+
+};
+
+
+///DEFULT CONSTRUCTOR
+Matrix::Matrix() : dx(1),dy(1){allocArrays();}
+///CONSTRUCTOR
+Matrix::Matrix(int sizeX,int sizeY):dx(sizeX),dy(sizeY)
+{
+    allocArrays();
+}
+
+Matrix::Matrix(int sizeX):dx(sizeX),dy(1)
+{
+    allocArrays();
+
+}
+///COPY CONSTRUCTOR
+Matrix::Matrix(const Matrix& m):dx(m.dx),dy(m.dy)
+{
+    allocArrays();
+    ///#pragma omp parallel for
+    (*p)=(*m.p);
+}
+
+///DISTRUCTOR
+Matrix::~Matrix()
+{
+    delete p;
+}
+
+///()
+double& Matrix::operator()(int X,int Y)
+{
+    return (*p)(X,Y);
+}
+double& Matrix::operator()(int X)
+{
+    if(dx==1) return (*p)(0,X);
+    else if(dy==1) return (*p)(X,0);
+    else {cout<<"Not a vector. "<<endl; return (*p)(0,X);}
+}
+
+///=
+Matrix& Matrix::operator=(const Matrix& m)
+{
+    ///judge
+    if(this==&m)
+    {
+        return *this;
+    }
+    else
+    {
+        if((dx!=m.dx||dy!=m.dy))
+        {
+            if (dx!=1&&dy!=1) cout<<"Warning(=): dimonsion not agree. New matrix will be built."<<endl;
+            this->~Matrix();
+            dx=m.dx;
+            dy=m.dy;
+            p=new MatrixXd (dx,dy);
+        }
+        (*p)=(*m.p);
+    }
+    return *this;
+}
+Matrix& Matrix::operator=(const Matrix&& m)
+{
+    ///judge
+    if(this==&m)
+    {
+        return *this;
+    }
+    else
+    {
+        if((dx!=m.dx||dy!=m.dy))
+        {
+            if (dx!=1&&dy!=1) cout<<"Warning(=): dimonsion not agree. New matrix will be built."<<endl;
+            this->~Matrix();
+            dx=m.dx;
+            dy=m.dy;
+            p=new MatrixXd (dx,dy);
+        }
+        (*p)=(*m.p);
+    }
+    return *this;
+}
+
+Matrix& Matrix::operator=(const MatrixXd& m)
+{
+    if(p==&m)
+    {
+        return *this;
+    }
+    else
+    {
+        if((dx!=int(m.rows())||dy!=int(m.cols())))
+        {
+            if (dx!=1&&dy!=1) cout<<"Warning(=): dimonsion not agree. New matrix will be built."<<endl;
+            this->~Matrix();
+            dx=m.rows();
+            dy=m.cols();
+            p=new MatrixXd (dx,dy);
+        }
+        (*p)=m;
+    }
+    return *this;
+}
+
+Matrix& Matrix::operator = (const double m[])
+{
+        ///#pragma omp parallel for
+        for(int i=0;i<dx;i++)
+            for(int j=0;j<dy;j++)
+                (*p)(i,j)=m[i*dy+j];
+
+    return *this;
+}
+///+
+Matrix Matrix::operator+(const Matrix& m) const
+{
+    ///judge
+    Matrix temp(*this);
+        if(dx!=m.dx||dy!=m.dy)
+            cout<<"Error(+): dimonsion not agree."<<endl;
+        else{
+
+            (*temp.p)+=(*m.p);
+        }
+
+    return temp;
+}
+Matrix Matrix::operator+(const Matrix&& m) const
+{
+    ///judge
+    Matrix temp(*this);
+        if(dx!=m.dx||dy!=m.dy)
+            cout<<"Error(+): dimonsion not agree."<<endl;
+        else{
+
+            (*temp.p)+=(*m.p);
+        }
+
+    return temp;
+}
+///-
+Matrix Matrix::operator-(const Matrix& m) const
+{
+    ///judge
+    Matrix temp(*this);
+        if(dx!=m.dx||dy!=m.dy)
+            cout<<"Error(-): dimonsion not agree."<<endl;
+        else
+        {
+
+            *temp.p-=(*m.p);
+        }
+
+    return temp;
+}
+Matrix Matrix::operator-(const Matrix&& m) const
+{
+    ///judge
+    Matrix temp(*this);
+        if(dx!=m.dx||dy!=m.dy)
+            cout<<"Error(-): dimonsion not agree."<<endl;
+        else
+        {
+
+            *temp.p-=(*m.p);
+        }
+
+    return temp;
+}
+
+///+=
+Matrix& Matrix::operator+=(const Matrix& m)
+{
+    ///judge
+        if(dx!=m.dx||dy!=m.dy)
+            cout<<"Error(+=): dimonsion does not agree."<<endl;
+        else{
+
+            (*p)+=(*m.p);
+        }
+
+    return *this;
+}
+Matrix& Matrix::operator+=(const Matrix&& m)
+{
+    ///judge
+        if(dx!=m.dx||dy!=m.dy)
+            cout<<"Error(+=): dimonsion does not agree."<<endl;
+        else{
+
+            (*p)+=(*m.p);
+        }
+
+    return *this;
+}
+Matrix& Matrix::operator+=(double m)
+{
+    ///judge
+            *this=(*this)+m;
+
+    return *this;
+}
+///-=
+Matrix& Matrix::operator-=(const Matrix& m)
+{
+    ///judge
+
+        if(dx!=m.dx||dy!=m.dy)
+            cout<<"Error(-=): dimonsion not agree."<<endl;
+        else{
+            (*p)-=(*m.p);
+        }
+
+    return *this;
+}
+Matrix& Matrix::operator-=(const Matrix&& m)
+{
+    ///judge
+
+        if(dx!=m.dx||dy!=m.dy)
+            cout<<"Error(-=): dimonsion not agree."<<endl;
+        else{
+            (*p)-=(*m.p);
+        }
+
+    return *this;
+}
+Matrix& Matrix::operator-=(double m)
+{
+    ///judge
+            *this->p-=m*MatrixXd::Ones(dx,dy);
+
+    return *this;
+}
+/// *=
+Matrix& Matrix::operator*=(const Matrix& m)
+{
+    ///judge
+
+        if(dx!=m.dx||dy!=m.dy)
+            cout<<"Error(*=): dimonsion not agree."<<endl;
+        else{
+            *this->p=this->p->cwiseProduct(*m.p);
+        }
+
+    return *this;
+}
+Matrix& Matrix::operator*=(const Matrix&& m)
+{
+    ///judge
+
+        if(dx!=m.dx||dy!=m.dy)
+            cout<<"Error(*=): dimonsion not agree."<<endl;
+        else{
+            *this->p=this->p->cwiseProduct(*m.p);
+        }
+
+    return *this;
+}
+Matrix& Matrix::operator*=(double m)
+{
+    ///judge
+            (*p)*=m;
+
+    return *this;
+}
+/// /=
+Matrix& Matrix::operator/=(const Matrix& m)
+{
+    ///judge
+
+        if(dx!=m.dx||dy!=m.dy)
+            cout<<"Error(/=): dimonsion not agree."<<endl;
+        else{
+            *this=(*this)/m;
+        }
+
+    return *this;
+}
+Matrix& Matrix::operator/=(const Matrix&& m)
+{
+    ///judge
+
+        if(dx!=m.dx||dy!=m.dy)
+            cout<<"Error(/=): dimonsion not agree."<<endl;
+        else{
+            *this=(*this)/m;
+        }
+
+    return *this;
+}
+Matrix& Matrix::operator/=(double m)
+{
+    ///judge
+
+            (*p)/=m;
+
+
+    return *this;
+}
+///  |
+Matrix operator | (const Matrix& m1,const Matrix& m2)
+{
+    Matrix prod(m1.dx,m2.dy);
+    if(m1.dy!=m2.dx)
+        cout<<"Error(|): dimonsion does not agree."<<endl;
+    else
+    {
+        *prod.p=(*m1.p)*(*m2.p);
+    }
+    return prod;
+}
+Matrix operator | (const Matrix&& m1,const Matrix&& m2)
+{
+    Matrix prod(m1.dx,m2.dy);
+    if(m1.dy!=m2.dx)
+        cout<<"Error(|): dimonsion does not agree."<<endl;
+    else
+    {
+        *prod.p=(*m1.p)*(*m2.p);
+    }
+    return prod;
+}
+Matrix operator | (const Matrix&& m1,const Matrix& m2)
+{
+    Matrix prod(m1.dx,m2.dy);
+    if(m1.dy!=m2.dx)
+        cout<<"Error(|): dimonsion does not agree."<<endl;
+    else
+    {
+        *prod.p=(*m1.p)*(*m2.p);
+    }
+    return prod;
+}
+Matrix operator | (const Matrix& m1,const Matrix&& m2)
+{
+    Matrix prod(m1.dx,m2.dy);
+    if(m1.dy!=m2.dx)
+        cout<<"Error(|): dimonsion does not agree."<<endl;
+    else
+    {
+        *prod.p=(*m1.p)*(*m2.p);
+    }
+    return prod;
+}
+///m1*m2
+Matrix operator * (const Matrix& m1,const Matrix& m2)
+{
+    Matrix prod(m1.dx,m1.dy);
+    if(m1.dx!=m2.dx||m1.dy!=m2.dy)
+        cout<<"Error(*): dimonsion does not agree."<<endl;
+    else
+    {
+        *prod.p=m1.p->cwiseProduct(*m2.p);
+    }
+    return prod;
+}
+Matrix operator * (double c,const Matrix& m2)
+{
+    Matrix prod(m2);
+    *prod.p*=c;
+
+    return prod;
+}
+Matrix operator * (const Matrix& m1,double c)
+{
+    return c*m1;
+}
+
+Matrix operator * (int c1,const Matrix& m2)
+{
+    return double(c1)*m2;
+}
+Matrix operator * (const Matrix& m1,int c1)
+{
+    return double(c1)*m1;
+}
+
+
+///c+m1
+Matrix operator + (double c,const Matrix& m)
+{
+    Matrix plus_M(m.dx,m.dy);
+    *plus_M.p=c*MatrixXd::Ones(m.dx,m.dy)+(*m.p);
+
+    return plus_M;
+}
+Matrix operator + (const Matrix& m, double c)
+{
+   return (c+m);
+}
+
+Matrix operator + (int c1,const Matrix& m)
+{
+    return double(c1)+m;
+}
+Matrix operator + (const Matrix& m, int c1)
+{
+    double c=double(c1);
+    return (c+m);
+}
+
+Matrix operator + (const Matrix& m)
+{
+    return m;
+}
+///c-m1
+Matrix operator - (const Matrix& m)
+{
+    return -1*m;
+}
+
+Matrix operator - (const Matrix& m,  double c)
+{
+   return m+(-c);
+}
+Matrix operator - ( double c,const Matrix& m)
+{
+    return -(m-c);
+}
+
+
+Matrix operator - ( int c1,const Matrix& m)
+{
+    return double(c1)-m;
+}
+Matrix operator - (const Matrix& m,  int c1)
+{
+    return m-double(c1);
+}
+
+
+///  /
+Matrix operator / (const Matrix& m1,const Matrix& m2)
+{
+    Matrix prod(m1.dx,m1.dy);
+    if(m1.dx!=m2.dx||m1.dy!=m2.dy)
+        cout<<"Error(/): dimonsion does not agree."<<endl;
+    else
+        *prod.p=(*m1.p).array()/(*m2.p).array();
+
+    return prod;
+}
+
+Matrix operator / (const Matrix& m1, double c)
+{
+    Matrix result=m1;
+    result/=c;
+    return result;
+}
+
+Matrix operator / (double c,const Matrix& m)
+{
+    Matrix prod(m.dx,m.dy);
+    *prod.p=c*MatrixXd::Ones(m.dx,m.dy).array()/(*m.p).array();
+
+    return prod;
+}
+
+Matrix operator / (const Matrix& m, int c1)
+{
+    return m/double(c1);
+}
+
+Matrix operator / (int c1,const Matrix& m)
+{
+    return double(c1)/m;
+}
+
+/// ^
+Matrix operator ^ (const Matrix& m, double c)
+{
+    Matrix result(m.dx,m.dy);
+    if(c>0)
+    {
+
+        return result=(*m.p).array().pow(c);
+
+    }
+    else
+    {
+        return result=(*m.p).array().pow(c).cwiseInverse();
+    }
+
+}
+
+Matrix operator ^ (const Matrix& m1, int c1)
+{
+    double c=double(c1);
+    return m1^c;
+}
+
+///&&
+///m1*m2
+Matrix operator * (const Matrix& m1,const Matrix&& m2)
+{
+    Matrix prod(m1.dx,m1.dy);
+    if(m1.dx!=m2.dx||m1.dy!=m2.dy)
+        cout<<"Error(*): dimonsion does not agree."<<endl;
+    else
+    {
+        *prod.p=m1.p->cwiseProduct(*m2.p);
+    }
+    return prod;
+}
+Matrix operator * (const Matrix&& m1,const Matrix&& m2)
+{
+    Matrix prod(m1.dx,m1.dy);
+    if(m1.dx!=m2.dx||m1.dy!=m2.dy)
+        cout<<"Error(*): dimonsion does not agree."<<endl;
+    else
+    {
+        *prod.p=m1.p->cwiseProduct(*m2.p);
+    }
+    return prod;
+}
+Matrix operator * (const Matrix&& m1,const Matrix& m2)
+{
+    Matrix prod(m1.dx,m1.dy);
+    if(m1.dx!=m2.dx||m1.dy!=m2.dy)
+        cout<<"Error(*): dimonsion does not agree."<<endl;
+    else
+    {
+        *prod.p=m1.p->cwiseProduct(*m2.p);
+    }
+    return prod;
+}
+Matrix operator * (double c,const Matrix&& m2)
+{
+    Matrix prod(m2);
+    *prod.p*=c;
+
+    return prod;
+}
+Matrix operator * (const Matrix&& m1,double c)
+{
+    return c*m1;
+}
+
+Matrix operator * (int c1,const Matrix&& m2)
+{
+    return double(c1)*m2;
+}
+Matrix operator * (const Matrix&& m1,int c1)
+{
+    return double(c1)*m1;
+}
+
+
+///c+m1
+Matrix operator + (double c,const Matrix&& m)
+{
+    Matrix plus_M(m.dx,m.dy);
+    *plus_M.p=c*MatrixXd::Ones(m.dx,m.dy)+(*m.p);
+
+    return plus_M;
+}
+Matrix operator + (const Matrix&& m, double c)
+{
+   return (c+m);
+}
+
+Matrix operator + (int c1,const Matrix&& m)
+{
+    return double(c1)+m;
+}
+Matrix operator + (const Matrix&& m, int c1)
+{
+    double c=double(c1);
+    return (c+m);
+}
+
+Matrix operator + (const Matrix&& m)
+{
+    return m;
+}
+///c-m1
+Matrix operator - (const Matrix&& m)
+{
+    return -1*m;
+}
+
+Matrix operator - (const Matrix&& m,  double c)
+{
+   return m+(-c);
+}
+Matrix operator - ( double c,const Matrix&& m)
+{
+    return -(m-c);
+}
+
+
+Matrix operator - ( int c1,const Matrix&& m)
+{
+    return double(c1)-m;
+}
+Matrix operator - (const Matrix&& m,  int c1)
+{
+    return m-double(c1);
+}
+
+
+///  /
+Matrix operator / (const Matrix&& m1,const Matrix&& m2)
+{
+    Matrix prod(m1.dx,m1.dy);
+    if(m1.dx!=m2.dx||m1.dy!=m2.dy)
+        cout<<"Error(/): dimonsion does not agree."<<endl;
+    else
+        *prod.p=(*m1.p).array()/(*m2.p).array();
+
+    return prod;
+}
+Matrix operator / (const Matrix&& m1,const Matrix& m2)
+{
+    Matrix prod(m1.dx,m1.dy);
+    if(m1.dx!=m2.dx||m1.dy!=m2.dy)
+        cout<<"Error(/): dimonsion does not agree."<<endl;
+    else
+        *prod.p=(*m1.p).array()/(*m2.p).array();
+
+    return prod;
+}
+Matrix operator / (const Matrix& m1,const Matrix&& m2)
+{
+    Matrix prod(m1.dx,m1.dy);
+    if(m1.dx!=m2.dx||m1.dy!=m2.dy)
+        cout<<"Error(/): dimonsion does not agree."<<endl;
+    else
+        *prod.p=(*m1.p).array()/(*m2.p).array();
+
+    return prod;
+}
+Matrix operator / (const Matrix&& m1, double c)
+{
+    Matrix result=m1;
+    result/=c;
+    return result;
+}
+
+Matrix operator / (double c,const Matrix&& m)
+{
+    Matrix prod(m.dx,m.dy);
+    *prod.p=c*MatrixXd::Ones(m.dx,m.dy).array()/(*m.p).array();
+
+    return prod;
+}
+
+Matrix operator / (const Matrix&& m, int c1)
+{
+    return m/double(c1);
+}
+
+Matrix operator / (int c1,const Matrix&& m)
+{
+    return double(c1)/m;
+}
+
+/// ^
+Matrix operator ^ (const Matrix&& m, double c)
+{
+    Matrix result(m.dx,m.dy);
+    if(c>0)
+    {
+
+        return result=(*m.p).array().pow(c);
+
+    }
+    else
+    {
+        return result=(*m.p).array().pow(c).cwiseInverse();
+    }
+
+}
+
+Matrix operator ^ (const Matrix&& m1, int c1)
+{
+    double c=double(c1);
+    return m1^c;
+}
+
+/// <<
+ostream &operator << (ostream &out, const Matrix &m)
+{
+    out<<*m.p;
+    return out;
+}
+///// <<
+//Matrix &operator << (const Matrix &m,ostream &in )
+//{
+//    m<<in;
+//    return m;
+//}
+/// >
+Matrix operator > (const Matrix& m1, const Matrix& m2)
+{
+    int Ny=m1.dx,Nx=m1.dy;
+    Matrix result(Ny,Nx);
+    if(m1.dx==m2.dx&&m1.dy==m2.dy)
+        for(int i=0;i<Ny;++i)
+            for(int j=0;j<Nx;j++)
+                result(i,j)=(m1.value(i,j)>m2.value(i,j));
+    else
+        cout<<"Error(>): Dimension does not agree."<<endl;
+    return result;
+}
+Matrix operator > (const Matrix& m1, double c)
+{
+    int Ny=m1.dx,Nx=m1.dy;
+    Matrix result(Ny,Nx);
+
+        for(int i=0;i<Ny;++i)
+            for(int j=0;j<Nx;j++)
+                result(i,j)=(m1.value(i,j)>c);
+
+    return result;
+}
+Matrix operator > (double c, const Matrix& m1)
+{
+    int Ny=m1.dx,Nx=m1.dy;
+    Matrix result(Ny,Nx);
+
+        for(int i=0;i<Ny;++i)
+            for(int j=0;j<Nx;j++)
+                result(i,j)=(c>m1.value(i,j));
+
+    return result;
+}
+/// >=
+/// >
+Matrix operator >= (const Matrix& m1, const Matrix& m2)
+{
+    int Ny=m1.dx,Nx=m1.dy;
+    Matrix result(Ny,Nx);
+    if(m1.dx==m2.dx&&m1.dy==m2.dy)
+        for(int i=0;i<Ny;++i)
+            for(int j=0;j<Nx;j++)
+                result(i,j)=(m1.value(i,j)>=m2.value(i,j));
+    else
+        cout<<"Error(>): Dimension does not agree."<<endl;
+    return result;
+}
+Matrix operator >= (const Matrix& m1, double c)
+{
+    int Ny=m1.dx,Nx=m1.dy;
+    Matrix result(Ny,Nx);
+
+        for(int i=0;i<Ny;++i)
+            for(int j=0;j<Nx;j++)
+                result(i,j)=(m1.value(i,j)>=c);
+
+    return result;
+}
+Matrix operator >= (double c, const Matrix& m1)
+{
+    int Ny=m1.dx,Nx=m1.dy;
+    Matrix result(Ny,Nx);
+
+        for(int i=0;i<Ny;++i)
+            for(int j=0;j<Nx;j++)
+                result(i,j)=(c>=m1.value(i,j));
+
+    return result;
+}
+
+/// <
+Matrix operator < (const Matrix& m1, const Matrix& m2)
+{
+    return (m2>m1);
+}
+Matrix operator < (const Matrix& m1, double c)
+{
+    return (c>m1);
+}
+Matrix operator < (double c, const Matrix& m2)
+{
+    return (m2>c);
+}
+/// <=
+Matrix operator <= (const Matrix& m1, const Matrix& m2)
+{
+    return (m2>=m1);
+}
+Matrix operator <= (const Matrix& m1, double c)
+{
+    return (c>=m1);
+}
+Matrix operator <= (double c, const Matrix& m2)
+{
+    return (m2>=c);
+}
+/// ==
+Matrix operator == (const Matrix& m1, const Matrix& m2)
+{
+    int Ny=m1.dx,Nx=m1.dy;
+    Matrix result(Ny,Nx);
+    if(m1.dx==m2.dx&&m1.dy==m2.dy)
+        for(int i=0;i<Ny;++i)
+            for(int j=0;j<Nx;j++)
+                result(i,j)=(m1.value(i,j)==m2.value(i,j));
+    else
+        cout<<"Error(>): Dimension does not agree."<<endl;
+    return result;
+}
+Matrix operator == (const Matrix& m1, double c)
+{
+    int Ny=m1.dx,Nx=m1.dy;
+    Matrix result(Ny,Nx);
+
+        for(int i=0;i<Ny;++i)
+            for(int j=0;j<Nx;j++)
+                result(i,j)=(m1.value(i,j)==c);
+
+    return result;
+}
+Matrix operator == (double c, const Matrix& m2)
+{
+    return (m2==c);
+}
+/// !=
+Matrix operator != (const Matrix& m1, const Matrix& m2)
+{
+    int Ny=m1.dx,Nx=m1.dy;
+    Matrix result(Ny,Nx);
+    if(m1.dx==m2.dx&&m1.dy==m2.dy)
+        for(int i=0;i<Ny;++i)
+            for(int j=0;j<Nx;j++)
+                result(i,j)=(m1.value(i,j)!=m2.value(i,j));
+    else
+        cout<<"Error(>): Dimension does not agree."<<endl;
+    return result;
+}
+Matrix operator != (const Matrix& m1, double c)
+{
+    int Ny=m1.dx,Nx=m1.dy;
+    Matrix result(Ny,Nx);
+
+        for(int i=0;i<Ny;++i)
+            for(int j=0;j<Nx;j++)
+                result(i,j)=(m1.value(i,j)!=c);
+
+    return result;
+}
+Matrix operator != (double c, const Matrix& m2)
+{
+    return (m2!=c);
+}
+///DISPLAY
+void Matrix::show(int n=15) const
+{
+    cout.precision(n);
+    for(int j=0;j<dx;j++)
+    {
+        for(int i=0;i<dy;i++)
+            cout<<(*p)(j,i)<<"    ";
+
+        cout<<endl;
+    }
+    cout<<endl;
+}
+void Matrix::show(string name,int n) const
+{
+    cout.precision(n);
+    cout<<"Matrix: "<<name<<endl;
+    for(int j=0;j<dx;j++)
+    {
+        for(int i=0;i<dy;i++)
+            cout<<(*p)(j,i)<<"    ";
+
+        cout<<endl;
+    }
+    cout<<endl;
+}
+
+/// read csv
+Matrix Matrix::readcsv(string filename)
+{
+    string line,data;
+    /// find Y,X
+    ifstream file1(filename.c_str());
+    int X=1,Y=1;
+    stringstream ss;
+    getline(file1,line);
+    ss<<line<<',';
+    X=count(line.begin(),line.end(),',')+1;
+    while(getline(file1,line)) Y++;
+    file1.close();
+    /// read data to matrix
+    Matrix dataMatrix(Y,X);
+    ifstream file(filename.c_str());
+
+    for(int i=0;i<Y;++i)
+    {
+        for( int j=0;j<X-1;++j)
+        {
+            getline(file, data, ',');
+            dataMatrix(i,j)=atof(data.c_str());
+        }
+        getline(file,data,'\n');
+        dataMatrix(i,X-1)=atof(data.c_str());
+    }
+
+
+    file.close();
+
+
+    return dataMatrix;
+}
+
+void Matrix::writecsv (string filename, const Matrix &m)
+{
+    ofstream file(filename);
+    file<<(*m.p);
+    file.close();
+}
+
+/// combine
+Matrix Matrix::combine(Matrix* M[],int n)
+{
+    int X=0,Y=0;
+    for(int i=0;i<n;i++){
+        Y+=(*M[i]).sizeY();
+    }
+    Matrix result(X,Y);
+
+    int SUM=0;
+    for(int K=0;K<n;K++)
+    {
+        for(int i=0;i<(*M[K]).sizeX();i++)
+            for(int j=0;j<(*M[K]).sizeY();j++)
+                result(SUM+i,j)=(*M[K])(i,j);
+
+        SUM+=(*M[K]).sizeX();
+    }
+
+    return result;
+
+}
+
+
+/// Transpose
+inline Matrix Matrix::trans() const
+{
+    Matrix m(dy,dx);
+    (*m.p)=p->transpose();
+
+    return m;
+}
+
+/// index
+Matrix Matrix::index() const
+{
+    Matrix m(dx,dy);
+    for(int i=0;i<dx;i++)
+        for(int j=0;j<dy;j++)
+        {
+            if((*p)(i,j)!=0) (*m.p)(i,j)=1;
+        }
+
+    return m;
+}
+
+double Matrix::sum() const
+{
+    return p->sum();
+}
+
+Matrix Matrix::ones(int i, int j)
+{
+    Matrix m(i,j);
+    m.p->fill(1.);
+    return m;
+}
+
+double Matrix::max() const
+{
+    return p->maxCoeff();
+}
+
+double Matrix::min() const
+{
+    return p->minCoeff();
+}
+
+void Matrix::remove_nan(double x)
+{
+    ///#pragma omp parallel for
+    for(int j=0;j<dx;j++)
+        for(int i=0;i<dy;i++)
+            if(isnan((*p)(j,i))||isinf((*p)(j,i))) (*p)(j,i)=x;
+}
+
+void Matrix::remove_nan(int x)
+{
+    remove_nan(double(x));
+}
+
+Matrix Matrix::zeros(int i, int j)
+{
+    Matrix m(i,j);
+    return m;
+}
+
+Matrix Matrix::random(int I, int J)
+{
+    Matrix m;
+    *m.p=MatrixXd::Random(I,J);
+    return m;
+}
+
+void Matrix::change(const Matrix& m, double c1, double c2)
+{
+    ///#pragma omp parallel for
+    for(int j=0;j<dx;j++)
+        for(int i=0;i<dy;i++)
+            if(m.value(j,i)==c1) (*p)(j,i)=c2;
+}
+
+void Matrix::change(const Matrix& m, int c1, double c2)
+{
+    change(m,double(c1),c2);
+}
+
+void Matrix::change(const Matrix& m, double c1, int c2)
+{
+    change(m,c1,double(c2));
+}
+
+void Matrix::change(const Matrix& m, int c1, int c2)
+{
+    change(m,double(c1),double(c2));
+}
+void Matrix::change(const Matrix& m,double c)
+{
+    change(m,1,c);
+}
+Matrix Matrix::row(int I)
+{
+    Matrix Row(1,dy);
+    *Row.p=p->row(I);
+
+    return Row;
+}
+
+Matrix Matrix::col(int I)
+{
+    Matrix Col(dx,1);
+    *Col.p=p->col(I);
+
+    return Col;
+}
+
+Matrix Matrix::range(int m, int n,int k,int q)
+{
+        Matrix result(n-m+1,q-k+1);
+        *result.p=p->block(m,n,k,q);
+
+        return result;
+}
+
+void Matrix::swap_row(int i,int j)
+{
+    if (i>=dx||j>=dx) cout<<"Error(swap_row): out of range. "<<endl;
+    else{
+        p->row(i).swap(p->row(j));
+    }
+}
+void Matrix::swap_col(int i,int j)
+{
+    if (i>=dy||j>=dy) cout<<"Error(swap_col): out of range. "<<endl;
+    else{
+        p->col(i).swap(p->col(j));
+    }
+}
+Matrix Matrix::diag() const
+{
+    Matrix result(dx,dy);
+    if(dx!=dy)
+        cout<<"Error(diag()): Input is not a square matrix."<<endl;
+    else
+        *result.p=p->diagonal();
+
+    return result;
+}
+
+
+#endif // MATRIX_H_INCLUDED

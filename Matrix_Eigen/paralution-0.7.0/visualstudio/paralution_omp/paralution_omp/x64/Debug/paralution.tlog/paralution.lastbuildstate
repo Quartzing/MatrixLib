@@ -1,0 +1,2 @@
+#TargetFrameworkVersion=v4.0:PlatformToolSet=v120:EnableManagedIncrementalBuild=false:VCToolArchitecture=Native32Bit
+Debug|x64|E:\SkyDrive\Penn State\Research\BO_Model\PROJECT_Cpp\Matrix_Eigen\paralution-0.7.0\visualstudio\paralution_omp\|
